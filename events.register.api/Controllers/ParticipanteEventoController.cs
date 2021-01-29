@@ -1,17 +1,15 @@
 ﻿using events.register.api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace events.register.api.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
     [ApiExplorerSettings(GroupName = "v1")]
-    [Route("api/V{version:apiVersion}/[controller]")] //api/V{version:apiVersion}/
+    [Route("api/v1/[controller]")]
     public class ParticipanteEventoController : ControllerBase
     {
         private readonly ILogger<ParticipanteEventoController> _logger;
@@ -22,7 +20,8 @@ namespace events.register.api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetParticiante()
+        [SwaggerOperation(Summary = "Busca participantes do evento")]
+        public ActionResult GetParticiante()
         {
             List<ParticipanteEvento> listaParticipantes = new List<ParticipanteEvento> { 
                 new ParticipanteEvento { 
@@ -38,7 +37,12 @@ namespace events.register.api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostParticiante(ParticipanteEvento participante)
+        [SwaggerOperation(Summary = "Registra o participante no evento")]
+        [Produces("application/json")]
+        [ProducesResponseType(statusCode: 201, Type = typeof(ParticipanteEvento))]
+        [ProducesResponseType(statusCode: 500, Type = typeof(ErrorResponse))]
+        [ProducesResponseType(statusCode: 404)]
+        public IActionResult PostParticiante(ParticipanteEvento participante)
         {
             if (ModelState.IsValid)
             {

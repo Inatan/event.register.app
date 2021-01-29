@@ -4,49 +4,61 @@ using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 
 namespace events.register.api
 {
     public class Startup
-{
-    public Startup(IConfiguration configuration)
     {
-        Configuration = configuration;
-    }
-
-    public IConfiguration Configuration { get; }
-
-    // This method gets called by the runtime. Use this method to add services to the container.
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services.AddControllers();
-
-        services.AddApiVersioning(options =>
-            options.ApiVersionReader = ApiVersionReader.Combine(
-                new HeaderApiVersionReader("api-version"),
-                new QueryStringApiVersionReader("api-version")
-            )
-        );
-    }
-
-    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-    {
-        if (env.IsDevelopment())
+        public Startup(IConfiguration configuration)
         {
-            app.UseDeveloperExceptionPage();
+            Configuration = configuration;
         }
 
-        app.UseHttpsRedirection();
+        public IConfiguration Configuration { get; }
 
-        app.UseRouting();
-
-        app.UseAuthorization();
-
-        app.UseEndpoints(endpoints =>
+        public void ConfigureServices(IServiceCollection services)
         {
-            endpoints.MapControllers();
-        });
+            services.AddControllers();
+
+            services.AddApiVersioning(options =>
+                options.ApiVersionReader = ApiVersionReader.Combine(
+                    new HeaderApiVersionReader("api-version"),
+                    new QueryStringApiVersionReader("api-version")
+                )
+            );
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Evento Api", Description = "Documentação da API", Version = "1.0" });
+                c.EnableAnnotations();
+
+            });
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseHttpsRedirection();
+
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1")
+            );
+
+            app.UseEndpoints(endpoints =>
+            {
+               endpoints.MapControllers();
+            });
+        }
     }
-}
 }
