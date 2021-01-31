@@ -1,39 +1,30 @@
 <template>
 
   <div>
-    <h1 class="centralizado">Cadastro</h1>
-    <h2 class="centralizado">Inclusão</h2>
+    <h1 class="centralizado">Cadastro do Evento</h1>
+    <h2 class="centralizado">Dados para participar</h2>
+    <p v-show="mensagem" class="centralizado erro">{{ mensagem }}</p>
 
     <form @submit.prevent="grava()" >
-        <div class="controle">
-            <label for="nome">Nome</label>
-            <input name="nome" v-model="participante.nome" id="nome" autocomplete="off" >
-        </div>
+        <inadev-input :nome="nome" titulo="Nome"  v-model="participante.nome"/>
 
-        <div class="controle">
-            <label for="cpf">CPF</label>
-            <input name="cpf" v-model="participante.cpf" id="cpf" autocomplete="off" >
-        </div>
+        <inadev-input :nome="cpf" titulo="CPF"  v-model="participante.cpf"/>
 
-        <div class="controle">
-            <label for="email">E-mail</label>
-            <input name="email" v-model="participante.email" id="email" autocomplete="off" >
-        </div>
+        <inadev-input :nome="email" titulo="E-mail"  v-model="participante.email"/>
 
-        <div class="controle">
-            <label for="nascimento">Nascimento</label>
-            <input name="nascimento" v-model="participante.nascimento" id="nascimento" autocomplete="off" >
-        </div>
+        <inadev-input :nome="nascimento" titulo="Nascimento"  v-model="participante.nascimento" :tipo="'data'"/>
+
+        <!-- <inadev-input :nome="cidade" titulo="Cidade" v-model="participante.cidade"/> -->
 
         <div class="controle">
             <label for="cidade">Cidade</label>
-            <input name="cidade" v-model="participante.cidade" id="cidade" autocomplete="off" >
+            <input  name="cidade"  id="cidade"  v-model="participante.cidade" autocomplete="off" > 
+            <!-- v-model="campoNome" -->
         </div>
-      
 
-      <div class="centralizado">
-        <inadev-botao rotulo="GRAVAR" tipo="submit"/>
-      </div>
+        <div class="centralizado">
+            <inadev-botao rotulo="GRAVAR" tipo="submit"/>
+        </div>
 
     </form>
   </div>
@@ -42,6 +33,7 @@
 <script>
 
 import Botao from '../shared/botao/Botao.vue';
+import Input from '../shared/input/Input.vue';
 import Participante from '../../domain/participante/Participante.js';
 import ParticipanteService from '../../domain/participante/ParticipanteServices.js';
 
@@ -49,34 +41,30 @@ export default {
 
   components: {
 
-    'inadev-botao': Botao
+    'inadev-botao': Botao,
+    'inadev-input' : Input,
   },
 
   methods:{
      grava() {
+        console.log(this.participante);
+        this.mensagem = this.participante.nome;
 
-        this.$validator
-          .validateAll()
-          .then(success => {
-            if(success) {
+        this.service
+            .cadastra(this.participante)
+            .then(() => {
+                this.mensagem = 'Participante incluído no evento com sucesso'
+                this.participante = new Participante();
+            }, 
+            err =>this.mensagem = err.message);
+        }
+    },
 
-              this.service
-                .cadastra(this.participante)
-                .then(() => {
-                  this.participante = new Participante()
-                }, 
-                err => console.log(err));
-            }
-        });
-    }
-
-  },
-
-  data() {
-    return {
-      participante: new Participante(),
-    }
-  },
+    data() {
+        return {
+            participante: new Participante(),
+        }
+    },
 
   created() {
     this.service = new ParticipanteService(this.$resource);
@@ -84,43 +72,24 @@ export default {
 }
 
 </script>
-<style scoped>
+<style >
+    h1{
+        color: rgba(6,3,141,1);
+        font-weight: 700;
+    }
     div {
         margin: 0;
     }
     form{
         max-width: 600px;
-        
+        margin: auto;
     }
 
-    input[type=text], select {
-        width: 100%;
-        padding: 12px 20px;
-        margin: 8px 0;
-        display: inline-block;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        box-sizing: border-box;
-    }
 
   .centralizado {
     text-align: center;
   }
-  .controle {
-    font-size: 1.2em;
-    margin-bottom: 20px;
 
-  }
-  .controle label {
-    display: block;
-    font-weight: bold;
-  }
-
- .controle label + input, .controle textarea {
-    width: 100%;
-    font-size: inherit;
-    border-radius: 5px
-  }
 
   .centralizado {
     text-align: center;

@@ -16,12 +16,6 @@ components: {
     'inadev-footer': Footer, 
     'inadev-cadastro': Cadastro,
   },
-  name: 'app',
-  data () {
-    return {
-      msg: 'Welcome to Your Vue.js App'
-    }
-  }
 }
 </script>
 
