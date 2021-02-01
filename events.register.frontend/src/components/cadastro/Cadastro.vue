@@ -9,34 +9,35 @@
         <div class="controle">
             <label for="nome">Nome</label>
             <input name="nome" v-model="participante.nome" id="nome" autocomplete="off" v-validate data-vv-rules="required|min:3|alpha_spaces" >
-            <span class="erro"  v-show="errors.has('nome')">{{ errors.first('nome') }}</span>
+            <span class="erro"  v-show="errors.has('nome')"> * {{ errors.first('nome') }}</span>
         </div>
 
         <div class="controle">
             <label for="cpf">CPF</label>
             <input name="cpf" v-model="participante.cpf" id="cpf" autocomplete="off" v-validate data-vv-rules="required|min:11|max:14" >
-            <span class="erro"  v-show="errors.has('cpf')">{{ errors.first('cpf') }}</span>
+            <span class="erro"  v-show="errors.has('cpf')"> * {{ errors.first('cpf') }}</span>
         </div>
         
 
         <div class="controle">
             <label for="email">E-mail</label>
             <input name="email" v-model="participante.email" id="email" autocomplete="off" v-validate data-vv-rules="required|email" >
-            <span class="erro"  v-show="errors.has('email')">{{ errors.first('email') }}</span>
+            <span class="erro"  v-show="errors.has('email')"> * {{ errors.first('email') }}</span>
         </div>
 
         <div class="controle">
             <label for="nascimento">Nascimento</label>
-            <inadev-datapicker :language="ptBR" format="dd/MM/yyyy" v-model="participante.nascimento"  name="nascimento"></inadev-datapicker>
+            <inadev-datapicker :disabled-dates="state.disabledDates" :language="ptBR" format="dd/MM/yyyy" v-model="participante.nascimento"  name="nascimento"></inadev-datapicker>
             
         </div>
 
         <div class="controle">
             <label for="cidade">Cidade</label>
             <input name="cidade" v-model="participante.cidade" id="cidade" autocomplete="off" v-validate data-vv-rules="required|min:3" >
-            <span class="erro"  v-show="errors.has('cidade')">{{ errors.first('cidade') }}</span>
+            <span class="erro"  v-show="errors.has('cidade')">* {{ errors.first('cidade') }}</span>
         </div>
       
+        <p class="info-cadastro"> Para se cadastrar no evento você deve preecher todo o formulário e ser maior que 18 anos de idade <p>
 
       <div class="centralizado">
         <inadev-botao rotulo="GRAVAR" tipo="submit"/>
@@ -52,6 +53,8 @@ import Botao from '../shared/botao/Botao.vue';
 import Participante from '../../domain/participante/Participante.js';
 import Datepicker from 'vuejs-datepicker';
 import ptBR from '../../pt-BR.js';
+import Api from '../../services/Api'
+
 export default {
 
   components: {
@@ -69,20 +72,20 @@ export default {
             .validateAll()
             .then(success => {
                 if(success) {
-                     self.axios.post('http://localhost:5000/api/v1/ParticipanteEvento/',self.participante)
+                    Api.post("ParticipanteEvento/",self.participante)
                     .then((response) => {
                         console.log(response);
                         self.mensagem = "Sua participação foi cadastrada com sucesso";
                         self.estilo = "sucesso";
-                        self.participante = new Participante()
+                        self.participante = new Participante();
                     }).catch(function (error) {
-                        var errorBody = error.response.data ;
-                        self.estilo = "erro";
+                        var errorBody = error.response.data;
                         var errosTxt = ""; 
+                        console.log(error)
                         Object.keys(errorBody.errors).forEach(function(key) {
-                            console.log(errorBody.errors[key][0]);
                             errosTxt += errorBody.errors[key][0] + " \n"; 
                         });
+                        self.estilo = "erro";
                         self.mensagem = errosTxt;
                     });
                 }
@@ -91,19 +94,33 @@ export default {
 
     },
 
-  data() {
-    return {
-      participante: new Participante(),
-      ptBR: ptBR,
-      mensagem: "",
-      estilo: "erro",
-    }
-  },
+    data() {
+        return {
+            participante: new Participante(),
+            ptBR: ptBR,
+            mensagem: "",
+            estilo: "erro",
+            state: {
+                disabledDates: {
+                    customPredictor: function(date) {
+                        if(date >= new Date()){
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    },
 
 }
-
 </script>
 <style >
+    .info-cadastro{
+        font-size: 1.0em;
+        text-transform: lower;
+        font-style: italic;
+    }
+
     h1{
         color: rgba(6,3,141,1);
         font-weight: 700;
@@ -134,39 +151,44 @@ export default {
         text-align: center;
     }
 
-  .centralizado {
-    text-align: center;
-  }
-  .controle {
-    font-size: 1.2em;
-    margin-bottom: 20px;
+    .centralizado {
+        text-align: center;
+    }
+    .controle {
+        font-size: 1.2em;
+        margin-bottom: 20px;
 
-  }
-  .controle label {
-    display: block;
-    font-weight: bold;
-  }
+    }
+    .controle label {
+        display: block;
+        font-weight: bold;
+    }
 
- .controle label + input, .controle textarea {
-    width: 100%;
-    font-size: inherit;
-    border-radius: 5px
-  }
+    .controle label + input, .controle textarea {
+        width: 100%;
+        font-size: inherit;
+        border-radius: 5px
+    }
 
-  .centralizado {
-    text-align: center;
-  }
+    .centralizado {
+        text-align: center;
+    }
 
-  .erro {
-    color: red;
-  }
+    .erro {
+        color: red;
+    }
 
-  .sucesso{
-    color: green;
-  }
+    .sucesso{
+        color: green;
+    }
 
     .pre-formatted {
         white-space: pre;
+    }
+
+
+    span{
+        font-size: 0.8em
     }
 
 </style>
