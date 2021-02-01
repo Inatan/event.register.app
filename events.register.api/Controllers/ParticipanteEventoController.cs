@@ -1,9 +1,11 @@
 ﻿using events.register.api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace events.register.api.Controllers
 {
@@ -53,7 +55,12 @@ namespace events.register.api.Controllers
                     return Created("", participante); // 201
                 }
             }
-            _logger.LogError($"Erro no envio do cadastro: {ErrorResponse.FromModelState(ModelState)}");
+            var errorList = ModelState.ToDictionary(
+                error => error.Key,
+                error => error.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+            );
+
+            _logger.LogError($"Erro no envio do cadastro: {JsonConvert.SerializeObject(errorList)}");
             return BadRequest(ErrorResponse.FromModelState(ModelState));
         }
     }
