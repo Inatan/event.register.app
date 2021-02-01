@@ -6,6 +6,16 @@ namespace events.register.api.Models
 {
     public class ErrorResponse
     {
+        public ErrorResponse() { }
+
+        public ErrorResponse(string erro)
+        {
+            Code = 400;
+            Message = "Não foi possível adicionar um novo cadastro";
+            InnerError = null;
+            Details = new string[] { erro };
+        }
+
         public int Code { get; set; }
         public string Message { get; set; }
         public ErrorResponse InnerError { get; set; }

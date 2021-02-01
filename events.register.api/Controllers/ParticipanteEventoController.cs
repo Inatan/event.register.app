@@ -15,6 +15,8 @@ namespace events.register.api.Controllers
     {
         private readonly ILogger<ParticipanteEventoController> _logger;
 
+        private static List<ParticipanteEvento> _memoryParticipante = new List<ParticipanteEvento>();
+
         public ParticipanteEventoController(ILogger<ParticipanteEventoController> logger)
         {
             _logger = logger;
@@ -24,17 +26,8 @@ namespace events.register.api.Controllers
         [SwaggerOperation(Summary = "Busca participantes do evento")]
         public ActionResult GetParticiante()
         {
-            List<ParticipanteEvento> listaParticipantes = new List<ParticipanteEvento> { 
-                new ParticipanteEvento { 
-                    Cidade = "Porto Alegre", 
-                    Cpf = "027.591.130-60", 
-                    Email = "inatan_hertzog@hotmail.com", 
-                    Nascimento = new DateTime(1993, 7, 5), 
-                    Nome = "Inata Lopes Hertzog" 
-                }
-            };
-
-            return Ok(listaParticipantes);
+            _logger.LogInformation($"Consulta realizada no server");
+            return Ok(_memoryParticipante);
         }
 
         [HttpPost]
@@ -47,8 +40,20 @@ namespace events.register.api.Controllers
         {
             if (ModelState.IsValid)
             {
-                return Created("", participante); // 201
+                if(_memoryParticipante.FindAll(p => p.Cpf == participante.Cpf).Count > 0)
+                {
+                    ModelState.AddModelError("Duplicado", "Esse participante já foi cadastrado");
+                    _logger.LogError($"Erro no envio do cadastro: Esse participante já foi cadastrado");
+                    return BadRequest(ErrorResponse.FromModelState(ModelState));
+                }
+                else
+                {
+                    _memoryParticipante.Add(participante);
+                    _logger.LogInformation($"Cadastro de {participante.Nome} realizado com sucesso!");
+                    return Created("", participante); // 201
+                }
             }
+            _logger.LogError($"Erro no envio do cadastro: {ErrorResponse.FromModelState(ModelState)}");
             return BadRequest(ErrorResponse.FromModelState(ModelState));
         }
     }

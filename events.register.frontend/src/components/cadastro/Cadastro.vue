@@ -79,12 +79,18 @@ export default {
                         self.estilo = "sucesso";
                         self.participante = new Participante();
                     }).catch(function (error) {
+                        console.log(error.response.data);
                         var errorBody = error.response.data;
                         var errosTxt = ""; 
                         console.log(error)
-                        Object.keys(errorBody.errors).forEach(function(key) {
-                            errosTxt += errorBody.errors[key][0] + " \n"; 
-                        });
+                        if(errorBody.errors){
+                            Object.keys(errorBody.errors).forEach(function(key) {
+                                errosTxt += errorBody.errors[key][0] + " \n"; 
+                            });
+                        }
+                        else{
+                            errosTxt = errorBody.details[0]
+                        }
                         self.estilo = "erro";
                         self.mensagem = errosTxt;
                     });
