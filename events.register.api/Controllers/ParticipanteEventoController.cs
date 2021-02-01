@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
+using System;
 using System.Collections.Generic;
 
 namespace events.register.api.Controllers
@@ -9,7 +10,7 @@ namespace events.register.api.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [ApiExplorerSettings(GroupName = "v1")]
-    [Route("api/v1/[controller]")]
+    [Route("api/V{version:apiVersion}/[controller]")]
     public class ParticipanteEventoController : ControllerBase
     {
         private readonly ILogger<ParticipanteEventoController> _logger;
@@ -28,7 +29,7 @@ namespace events.register.api.Controllers
                     Cidade = "Porto Alegre", 
                     Cpf = "027.591.130-60", 
                     Email = "inatan_hertzog@hotmail.com", 
-                    Nascimento = "05/07/1993",//new DateTime(1993, 7, 5), 
+                    Nascimento = new DateTime(1993, 7, 5), 
                     Nome = "Inata Lopes Hertzog" 
                 }
             };

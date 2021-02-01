@@ -10,6 +10,8 @@ namespace events.register.api
 {
     public class Startup
     {
+        readonly string AllowLocalhost = "allowLocalhost";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -19,6 +21,8 @@ namespace events.register.api
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
+
             services.AddControllers();
 
             services.AddApiVersioning(options =>
@@ -48,6 +52,14 @@ namespace events.register.api
             app.UseRouting();
 
             app.UseAuthorization();
+
+            // global cors policy
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true) // allow any origin
+                .AllowCredentials()); // allow credentials
+
 
             app.UseSwagger();
 

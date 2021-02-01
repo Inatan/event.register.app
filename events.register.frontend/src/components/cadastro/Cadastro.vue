@@ -3,7 +3,7 @@
   <div>
     <h1 class="centralizado">Cadastro do Evento</h1>
     <h2 class="centralizado">Dados para participar</h2>
-    <p v-show="mensagem" class="centralizado erro pre-formatted">{{ mensagem }}</p>
+    <p v-show="mensagem" :class="estilo" class="centralizado pre-formatted">{{ mensagem }}</p>
 
     <form @submit.prevent="grava" >
         <div class="controle">
@@ -33,7 +33,7 @@
 
         <div class="controle">
             <label for="cidade">Cidade</label>
-            <input name="cidade" v-model="participante.cidade" id="cidade" autocomplete="off" v-validate data-vv-rules="required|min:3|alpha_num" >
+            <input name="cidade" v-model="participante.cidade" id="cidade" autocomplete="off" v-validate data-vv-rules="required|min:3" >
             <span class="erro"  v-show="errors.has('cidade')">{{ errors.first('cidade') }}</span>
         </div>
       
@@ -72,9 +72,12 @@ export default {
                      self.axios.post('http://localhost:5000/api/v1/ParticipanteEvento/',self.participante)
                     .then((response) => {
                         console.log(response);
+                        self.mensagem = "Sua participação foi cadastrada com sucesso";
+                        self.estilo = "sucesso";
                         self.participante = new Participante()
                     }).catch(function (error) {
                         var errorBody = error.response.data ;
+                        self.estilo = "erro";
                         var errosTxt = ""; 
                         Object.keys(errorBody.errors).forEach(function(key) {
                             console.log(errorBody.errors[key][0]);
@@ -93,17 +96,10 @@ export default {
       participante: new Participante(),
       ptBR: ptBR,
       mensagem: "",
+      estilo: "erro",
     }
   },
 
-    created() {
-        this.axios.get('http://localhost:5000/api/v1/ParticipanteEvento/').then((response) => {
-            console.log(response.data)
-        });
-    // this.service = new ParticipanteService(this.$resource);
-    // this.service.lista()
-    //   .then(participante => console.log(participante), err => this.mensagem = err.message);
-    } 
 }
 
 </script>
@@ -163,6 +159,10 @@ export default {
 
   .erro {
     color: red;
+  }
+
+  .sucesso{
+    color: green;
   }
 
     .pre-formatted {
